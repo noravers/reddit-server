@@ -1,5 +1,6 @@
 import { __prod__ } from "./constants"
 import { Post } from "./entities/Post";
+import { MikroORM } from "@mikro-orm/core"
 
 export default {
         entities: [Post],
@@ -8,4 +9,5 @@ export default {
         password: 'georgie4$$',
         type: 'postgresql',
         debug: !__prod__,      
-} as const;
+} as Parameters<typeof MikroORM.init>[0];
+
