@@ -4,8 +4,8 @@ import mikroConfig from './mikro-orm.config'
 
 const main = async() => {
     const orm = await MikroORM.init(mikroConfig);
-    // console.log(orm)
     const em = orm.em.fork();
+    await orm.getMigrator().up();
     try {
         const post = em.create(Post, {
         title: 'my first post',
