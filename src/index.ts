@@ -6,19 +6,20 @@ const main = async() => {
     const orm = await MikroORM.init(mikroConfig);
     const em = orm.em.fork();
     await orm.getMigrator().up();
-    try {
-        const post = em.create(Post, {
-        title: 'my first post',
-        createdAt: "",
-        updatedAt: ""
-    })
-
-    await em.persistAndFlush(post)
+    // try {
+    //     const post = em.create(Post, {
+    //     title: 'my first post',
+    //     createdAt: "",
+    //     updatedAt: ""
+   // })
+    const posts = await em.find(Post, {})
+    console.log(posts)
+    // await em.persistAndFlush(post)
     // console.log('Post created sucessfully')
 
-    }catch (error) {
-        // console.log('Error creating Post', error)
-    }
+    // }catch (error) {
+    //     // console.log('Error creating Post', error)
+    // }
     
 }
 
