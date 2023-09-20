@@ -10,10 +10,9 @@ import { PostResolver } from "./resolvers/post";
 
 const main = async() => {
     const orm = await MikroORM.init(mikroConfig);
-    // const em = orm.em.fork();
     await orm.getMigrator().up();
     
-    const app = express();
+    const app = express();    
     
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
@@ -23,9 +22,9 @@ const main = async() => {
         context: () => ({ em: orm.em.fork() })
     })
 
-    await apolloServer.start();
-    
-    apolloServer.applyMiddleware({app})
+        await apolloServer.start();
+        
+        apolloServer.applyMiddleware({app})
 
     app.listen(4000, () => {
         console.log('server started on local:host:4000')
