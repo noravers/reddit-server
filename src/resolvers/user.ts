@@ -35,6 +35,15 @@ export class UserResolver {
         @Arg('options') options: UsernamePasswordInput,
         @Ctx() { em }: MyContext
     ) : Promise<UserResponse> {
+        const username = await em.findOne(User, { username: options.username })
+        if(username) {
+            return {
+                errors: [{
+                    field: "username",
+                    message: "username already exist"
+                }]
+            }
+        }
         if(options.username.length <= 2){
             return {
                 errors: [{
@@ -43,11 +52,11 @@ export class UserResolver {
                 }]
             }
         }
-        if(options.password.length <= 3){
+        if(options.password.length <= 5){
             return {
                 errors: [{
                     field: "username",
-                    message: "length must be grater than 3"
+                    message: "length must be grater than 5"
                 }]
             }
         }
