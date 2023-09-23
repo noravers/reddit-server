@@ -9,6 +9,14 @@ import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
 
+import redis from 'redis';
+import session from 'express-session';
+
+let RedisStore = require('connect-redis')(session)
+let redisClient = redis.createClient()
+
+
+
 const main = async() => {
     const orm = await MikroORM.init(mikroConfig);
     await orm.getMigrator().up();
@@ -23,9 +31,17 @@ const main = async() => {
         context: () => ({ em: orm.em.fork() })
     })
 
-        await apolloServer.start();
-        
-        apolloServer.applyMiddleware({app})
+    await apolloServer.start();
+    
+    apolloServer.applyMiddleware({app})
+
+    app.use(
+        session({
+            store: new RedisStore({ client: redisClient}),
+            secret: "keyboard cat",
+            resave: false
+        })
+    )
 
     app.listen(4000, () => {
         console.log('server started on local:host:4000')
