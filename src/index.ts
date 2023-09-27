@@ -9,14 +9,30 @@ import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
 
-import Redis from 'ioredis';
-// import redis from 'redis';
-import session from 'express-session';
-import connectRedis from 'connect-redis'
+import RedisStore from "connect-redis";
+import session from "express-session";
+import Redis from "ioredis"; // Import Redis from ioredis
 
-const RedisStore = connectRedis(session)
-// const redisClient = redis.createClient()
-const redisClient = new Redis();
+const redisClient = new Redis({
+  // Redis client options here (if needed)
+  // For example, specifying the host and port:
+  // host: "localhost",
+  // port: 6379,
+});
+
+// Handle any connection errors
+redisClient.on("error", (error) => {
+  console.error("Redis connection error:", error);
+});
+
+const redisStore = new RedisStore({
+  client: redisClient,
+  prefix: "", // Add your prefix here if needed
+});
+
+// Now you can use redisStore with express-session
+
+
 
 
 
@@ -38,9 +54,10 @@ const main = async() => {
 
     app.use(
         session({
-            store: new RedisStore({ client: redisClient }),
+            store: redisStore,
             secret: "keyboard cat",
-            resave: false
+            resave: false,
+            saveUninitialized: false
         })
     )
     app.listen(4000, () => {
