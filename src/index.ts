@@ -13,33 +13,28 @@ import RedisStore from "connect-redis";
 import session from "express-session";
 import Redis from "ioredis"; // Import Redis from ioredis
 
-const redisClient = new Redis({
-  // Redis client options here (if needed)
-  // For example, specifying the host and port:
-  // host: "localhost",
-  // port: 6379,
-});
-
-// Handle any connection errors
-redisClient.on("error", (error) => {
-  console.error("Redis connection error:", error);
-});
-
-const redisStore = new RedisStore({
-  client: redisClient,
-  prefix: "", // Add your prefix here if needed
-});
-
-// Now you can use redisStore with express-session
-
-
-
-
 
 const main = async() => {
     const orm = await MikroORM.init(mikroConfig);
     await orm.getMigrator().up();    
     const app = express();    
+    
+    const redisClient = new Redis({
+      // Redis client options here (if needed)
+      // For example, specifying the host and port:
+      // host: "localhost",
+      // port: 6379,
+    });
+    
+    // Handle any connection errors
+    redisClient.on("error", (error) => {
+      console.error("Redis connection error:", error);
+    });
+    
+    const redisStore = new RedisStore({
+      client: redisClient,
+      prefix: "", // Add your prefix here if needed
+    });
     
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
