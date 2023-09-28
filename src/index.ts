@@ -12,6 +12,7 @@ import { UserResolver } from "./resolvers/user";
 import RedisStore from "connect-redis";
 import session from "express-session";
 import Redis from "ioredis"; // Import Redis from ioredis
+import { __prod__ } from "./constants";
 
 
 const main = async() => {
@@ -34,6 +35,8 @@ const main = async() => {
     const redisStore = new RedisStore({
       client: redisClient,
       prefix: "", // Add your prefix here if needed
+      disableTouch: true,
+    //   disableTTL: true
     });
     
     const apolloServer = new ApolloServer({
@@ -49,7 +52,14 @@ const main = async() => {
 
     app.use(
         session({
+            name: "myapp",
             store: redisStore,
+            cookie: {
+                maxAge: 1000 * 60 * 60 * 24 * 365 * 10, //10 years
+                httpOnly: true,
+                sameSite: 'lax',
+                secure: __prod__
+            },
             secret: "keyboard cat",
             resave: false,
             saveUninitialized: false
