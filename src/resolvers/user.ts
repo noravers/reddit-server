@@ -79,6 +79,7 @@ export class UserResolver {
         const user = await em.findOne(User, {
             username: options.username
         })
+        console.log({ user })
         if(!user) {
             return {
                 errors: [{
@@ -87,7 +88,8 @@ export class UserResolver {
                 }]
             }
         }
-        const valid = argon2.verify(user.password, options.password)
+        const valid = await argon2.verify(user.password, options.password)
+        console.log({ valid })
         if(!valid){
             return {
                 errors: [
@@ -98,13 +100,20 @@ export class UserResolver {
                 ]
             }
         }
-
-        req.session.userId = user.id
+            
+        
+        try {
+            req.session.userId = user.id
+        }catch(err) {
+            
+        }
 
         return {
             user
         }
     }
+
+    
 
 
     // @Query(() => [User])
