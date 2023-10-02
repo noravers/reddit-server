@@ -67,8 +67,7 @@ const main = async() => {
     )
     app.listen(4000, () => {
         console.log('server started on local:host:4000')
-    })  
-    
+    })      
     // app.get('/', (req, res) => {
     // // Log the session object to the console
     // req.session.userId = 5
