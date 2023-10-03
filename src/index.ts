@@ -38,6 +38,14 @@ const main = async() => {
       disableTouch: true,
     //   disableTTL: true
     });
+
+    // const cors = {
+    // credentials: true,
+    // origin: 'https://studio.apollographql.com'
+    // }
+
+    app.set("Access-Control-Allow-Origin", "studio.apollographql.com", );
+    app.set("Access-Control-Allow-Credentials", true);
     
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
@@ -48,7 +56,11 @@ const main = async() => {
     })
 
     await apolloServer.start();    
-    apolloServer.applyMiddleware({app})
+    apolloServer.applyMiddleware({
+        app, 
+        cors: { credentials: true, origin: "https://studio.apollographql.com" }
+    })
+
 
     app.use(
         session({
@@ -57,8 +69,8 @@ const main = async() => {
             cookie: {
                 maxAge: 1000 * 60 * 60 * 24 * 365 * 10, //10 years
                 httpOnly: true,
-                sameSite: 'lax',
-                secure: __prod__
+                sameSite: 'none',
+                secure: true
             },
             secret: "keyboard cat",
             resave: false,
@@ -66,16 +78,16 @@ const main = async() => {
         })
     )
     app.listen(4000, () => {
-        console.log('server started on local:host:4000')
+        console.log('server started on localhost:4000')
     })      
-    // app.get('/', (req, res) => {
-    // // Log the session object to the console
+    app.get('/', (req, res) => {
+    // Log the session object to the console
     // req.session.userId = 5
-    // console.log(req.session);
+    console.log(req);
 
-    // // Your route handling logic here
-    // res.send('Hello World');
-    // });
+    // Your route handling logic here
+    res.send('Hello World');
+    });
 }
 
 main().catch(err => {
