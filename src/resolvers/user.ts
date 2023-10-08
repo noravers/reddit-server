@@ -35,7 +35,8 @@ export class UserResolver {
         @Ctx() { req, em }:MyContext
     ){
         console.log({
-            session_cookie: req.session
+            session_cookie: req.session,
+            
         })
         //you are not logged in
         if(!req.session.userId){
@@ -125,9 +126,8 @@ export class UserResolver {
             
         }
         
-        console.log({
-            login_session_cookie: req.session
-        })
+        req.session.userId = user.id
+        console.log({ userIdcookie: req.session?.userId})
         return {
             user
         }

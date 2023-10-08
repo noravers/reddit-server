@@ -13,10 +13,10 @@ import RedisStore from "connect-redis";
 import session from "express-session";
 import Redis from "ioredis"; // Import Redis from ioredis
 import { __prod__ } from "./constants";
-// import {
-//  ApolloServerPluginLandingPageProductionDefault,
-//  ApolloServerPluginLandingPageLocalDefault
-// }  from 'apollo-server-core';
+import {
+ ApolloServerPluginLandingPageProductionDefault,
+ ApolloServerPluginLandingPageLocalDefault
+}  from 'apollo-server-core';
 
 
 const main = async() => {
@@ -47,48 +47,57 @@ const main = async() => {
     // credentials: true,
     // origin: 'https://studio.apollographql.com'
     // }
+    // app.set("trust proxy", true); //process.env.NODE_ENV !== "production");
+    // app.set("Access-Control-Allow-Origin", "https://studio.apollographql.com/");
+    // app.set("Access-Control-Allow-Credentials", true);
 
-    app.set("Access-Control-Allow-Origin", "studio.apollographql.com", );
-    app.set("Access-Control-Allow-Credentials", true);
+    // app.set("Access-Control-Allow-Origin", "studio.apollographql.com", );
+    // app.set("Access-Control-Allow-Credentials", true);
     
+    app.use(
+        session({
+            name: "cookiereddit",
+            store: redisStore,
+            cookie: {
+                maxAge: 1000 * 60 * 60 * 24 * 365 * 10, //10 years
+                httpOnly: true,
+                sameSite: 'lax',
+                secure: false
+            },
+            secret: "fdfgsgs",
+            resave: false,
+            saveUninitialized: false
+        })
+    )
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
             resolvers: [HelloResolver, PostResolver, UserResolver],
             validate: false
         }),
+        
         context: ({ req, res }) => ({ em: orm.em.fork(), req, res }),
-        // plugins: [
-        //     process.env.NODE_ENV === "production"
-        //     ? ApolloServerPluginLandingPageProductionDefault({
-        //         embed: true,
-        //         graphRef: "plaid-gufzoj@current"
-        //         })
-        //     : ApolloServerPluginLandingPageLocalDefault()
-        // ]
+        plugins: [
+            process.env.NODE_ENV === "production"
+            ? ApolloServerPluginLandingPageProductionDefault({
+                embed: true,
+                graphRef: "plaid-gufzoj@current"
+                })
+            : ApolloServerPluginLandingPageLocalDefault({ embed: true})
+        ]
     })
 
     await apolloServer.start();    
     apolloServer.applyMiddleware({
         app,
-        cors: { credentials: true, origin: "https://studio.apollographql.com" }
+        // cors: { 
+        //     credentials: true, 
+        //     origin: [
+        //     "https://studio.apollographql.com",
+        //     "http://localhost:4000/graphql",
+        // ] }
     })
 
 
-    app.use(
-        session({
-            name: "myapp",
-            store: redisStore,
-            cookie: {
-                maxAge: 1000 * 60 * 60 * 24 * 365 * 10, //10 years
-                httpOnly: true,
-                sameSite: 'none',
-                secure: true
-            },
-            secret: "keyboard cat",
-            resave: false,
-            saveUninitialized: false
-        })
-    )
     app.listen(4000, () => {
         console.log('server started on localhost:4000')
     })      
@@ -99,8 +108,20 @@ const main = async() => {
     });
     next();
     });
+    // app.get('/', (req, res) => {
+    // // Log the session object to the console
+    // // req.session.userId = 5
+    // console.log(req);
 
-    // app.use()
+    // // Your route handling logic here
+    // res.send('Hello World');
+    // });
+
+    // app.get('/', (req, res) => {
+    //     req.session.userId = 7
+    //     console.log(req.session)
+    //     res.send('hello')
+    // })
 
 
     // Your route handling logic here
