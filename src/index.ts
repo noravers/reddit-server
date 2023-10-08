@@ -13,6 +13,10 @@ import RedisStore from "connect-redis";
 import session from "express-session";
 import Redis from "ioredis"; // Import Redis from ioredis
 import { __prod__ } from "./constants";
+// import {
+//  ApolloServerPluginLandingPageProductionDefault,
+//  ApolloServerPluginLandingPageLocalDefault
+// }  from 'apollo-server-core';
 
 
 const main = async() => {
@@ -52,12 +56,20 @@ const main = async() => {
             resolvers: [HelloResolver, PostResolver, UserResolver],
             validate: false
         }),
-        context: ({ req, res }) => ({ em: orm.em.fork(), req, res })
+        context: ({ req, res }) => ({ em: orm.em.fork(), req, res }),
+        // plugins: [
+        //     process.env.NODE_ENV === "production"
+        //     ? ApolloServerPluginLandingPageProductionDefault({
+        //         embed: true,
+        //         graphRef: "plaid-gufzoj@current"
+        //         })
+        //     : ApolloServerPluginLandingPageLocalDefault()
+        // ]
     })
 
     await apolloServer.start();    
     apolloServer.applyMiddleware({
-        app, 
+        app,
         cors: { credentials: true, origin: "https://studio.apollographql.com" }
     })
 
@@ -69,7 +81,7 @@ const main = async() => {
             cookie: {
                 maxAge: 1000 * 60 * 60 * 24 * 365 * 10, //10 years
                 httpOnly: true,
-                sameSite: 'lax',
+                sameSite: 'none',
                 secure: true
             },
             secret: "keyboard cat",
@@ -80,14 +92,20 @@ const main = async() => {
     app.listen(4000, () => {
         console.log('server started on localhost:4000')
     })      
-    app.get('/', (req, res) => {
-    // Log the session object to the console
-    // req.session.userId = 5
-    console.log(req);
+        // Middleware to log request and response headers
+    app.use((_, res, next) => {
+    res.on("finish", () => {
+        console.log("Response Headers:", res.getHeaders());
+    });
+    next();
+    });
+
+    // app.use()
+
 
     // Your route handling logic here
-    res.send('Hello World');
-    });
+    // res.send('Hello World');
+    // });
 }
 
 main().catch(err => {
