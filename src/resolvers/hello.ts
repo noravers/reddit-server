@@ -7,3 +7,11 @@ export class HelloResolver {
         return "hey"
     }
 };
+
+// export const resolvers = {
+//     Query: {
+//         hello: () => {
+//             return "hey"
+//         }
+//     }
+// }
