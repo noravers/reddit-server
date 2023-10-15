@@ -12,7 +12,7 @@ export default {
         entities: [Post, User],
         dbName: 'lireddit',
         user: 'postgres',
-        password: 'georgie4$$',
+        password: process.env.DATABASE_PASS,
         type: 'postgresql',
         debug: !__prod__,      
 } as Parameters<typeof MikroORM.init>[0];
