@@ -117,17 +117,10 @@ export class UserResolver {
                     }
                 ]
             }
-        }
-            
-        
-        try {
-            // req.session.userId = user.id
-        }catch(err) {
-            
-        }
-        
-        req.session.userId = user.id
-        console.log({ userIdcookie: req.session?.userId})
+        }        
+                
+        req.session!.userId = user.id
+     
         return {
             user
         }
