@@ -3,6 +3,8 @@ import { Post } from "./entities/Post";
 import { MikroORM } from "@mikro-orm/core"
 import path from "path";
 import { User } from "./entities/User";
+import dotenv from 'dotenv';
+dotenv.config();
 
 export default {
         migrations: {
