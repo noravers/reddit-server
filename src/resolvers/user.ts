@@ -34,10 +34,10 @@ export class UserResolver {
     async me(
         @Ctx() { req, em }:MyContext
     ){
-        console.log({
-            session_cookie: req.session,
+        // console.log({
+        //     session_cookie: req.session,
             
-        })
+        // })
         //you are not logged in
         if(!req.session.userId){
             return null
@@ -120,7 +120,7 @@ export class UserResolver {
         }        
                 
         req.session!.userId = user.id
-        console.log(req.session)
+        // console.log(req.session)
      
         return {
             user
