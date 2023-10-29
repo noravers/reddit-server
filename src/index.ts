@@ -8,21 +8,25 @@ import { buildSchema } from 'type-graphql'
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
+import cors from 'cors'
 
 import RedisStore from "connect-redis";
 import session from "express-session";
 import Redis from "ioredis"; // Import Redis from ioredis
 import { __prod__ } from "./constants";
-import {
- ApolloServerPluginLandingPageProductionDefault,
- ApolloServerPluginLandingPageLocalDefault
-}  from 'apollo-server-core';
+// import {
+//  ApolloServerPluginLandingPageProductionDefault,
+//  ApolloServerPluginLandingPageLocalDefault
+// }  from 'apollo-server-core';
+import { MyContext } from "./types";
 
 
 const main = async() => {
     const orm = await MikroORM.init(mikroConfig);
     await orm.getMigrator().up();    
     const app = express();    
+    app.use(express.json())
+    // app.set("trust proxy", true)
     
     const redisClient = new Redis({
       // Redis client options here (if needed)
@@ -53,16 +57,27 @@ const main = async() => {
 
     // app.set("Access-Control-Allow-Origin", "studio.apollographql.com", );
     // app.set("Access-Control-Allow-Credentials", true);
-    
+
     app.use(
+         cors({ 
+            credentials: true, 
+            origin: [
+            "https://studio.apollographql.com",
+            "http://localhost:4000/graphql",
+        ] })
+    )
+    
+    app.use(        
         session({
+            proxy: true,
             name: "cookiereddit",
             store: redisStore,
             cookie: {
                 maxAge: 1000 * 60 * 60 * 24 * 365 * 10, //10 years
                 httpOnly: true,
-                sameSite: 'lax',
-                secure: false
+                sameSite: 'none',
+                secure: true,
+                // path: '/grapqhl',
             },
             secret: "fdfgsgs",
             resave: false,
@@ -75,15 +90,15 @@ const main = async() => {
             validate: false
         }),
         
-        context: ({ req, res }) => ({ em: orm.em.fork(), req, res }),
-        plugins: [
-            process.env.NODE_ENV === "production"
-            ? ApolloServerPluginLandingPageProductionDefault({
-                embed: true,
-                graphRef: "plaid-gufzoj@current"
-                })
-            : ApolloServerPluginLandingPageLocalDefault({ embed: true})
-        ]
+        context: ({ req, res }): MyContext => ({ em: orm.em.fork(), req, res }),
+        // plugins: [
+        //     process.env.NODE_ENV === "production"
+        //     ? ApolloServerPluginLandingPageProductionDefault({
+        //         embed: true,
+        //         graphRef: "plaid-gufzoj@current"
+        //         })
+        //     : ApolloServerPluginLandingPageLocalDefault({ embed: false})
+        // ]
     })
 
     await apolloServer.start();    
